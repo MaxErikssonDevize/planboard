@@ -1,0 +1,84 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-devize: #33cccc;
+  --color-devize-light: #5cdbdb;
+  --color-devize-dark: #2ab5b5;
+}
+
+:root {
+  --bg: #ffffff;
+  --bg-elevated: #f8f8f8;
+  --bg-card: #ffffff;
+  --fg: #1a1a2e;
+  --fg-muted: #6b7280;
+  --border: #e5e7eb;
+  --border-hover: #d1d5db;
+  --accent: var(--color-devize);
+  --accent-hover: var(--color-devize-light);
+  --accent-subtle: #e6f9f9;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: 0 10px 25px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f0f1a;
+    --bg-elevated: #1a1a2e;
+    --bg-card: #1a1a2e;
+    --fg: #f0f0f5;
+    --fg-muted: #9ca3af;
+    --border: #2a2a40;
+    --border-hover: #3a3a55;
+    --accent: var(--color-devize);
+    --accent-hover: var(--color-devize-light);
+    --accent-subtle: rgba(51, 204, 204, 0.12);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.15);
+    --shadow-card-hover: 0 10px 30px rgba(0, 0, 0, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* Smooth transitions on interactive elements */
+a, button, input, textarea {
+  transition: all 0.15s ease;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fg-muted);
+}
+
+/* Prose overrides for markdown */
+.prose {
+  --tw-prose-body: var(--fg);
+  --tw-prose-headings: var(--fg);
+  --tw-prose-links: var(--accent);
+  --tw-prose-bold: var(--fg);
+  --tw-prose-code: var(--accent);
+  --tw-prose-quotes: var(--fg-muted);
+  --tw-prose-quote-borders: var(--accent);
+}

@@ -1,0 +1,18 @@
+# deps
+node_modules/
+
+# next
+.next/
+out/
+
+# env
+.env*.local
+.env
+
+# drizzle studio
+drizzle/meta/_journal.json.bak
+
+# misc
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
