@@ -67,8 +67,18 @@ server.tool(
     const plan = await api(
       `/api/spaces/${space}/projects/${project}/plans/${slug}`,
     );
+    const comments = await api(`/api/plans/${plan.id}/comments`);
+    const parts = [plan.content];
+    if (Array.isArray(comments) && comments.length > 0) {
+      parts.push("\n\n---\n## Kommentarer\n");
+      for (const c of comments) {
+        const author = c.author?.name || "Anonym";
+        const date = new Date(c.createdAt).toLocaleString("sv");
+        parts.push(`**${author}** (${date}):\n${c.content}\n`);
+      }
+    }
     return {
-      content: [{ type: "text", text: plan.content }],
+      content: [{ type: "text", text: parts.join("\n") }],
     };
   },
 );
@@ -156,6 +166,93 @@ server.tool(
     );
     return {
       content: [{ type: "text", text: JSON.stringify(list, null, 2) }],
+    };
+  },
+);
+
+server.tool(
+  "read_finding",
+  "Read a finding with its comments",
+  {
+    id: z.string().describe("Finding ID"),
+  },
+  async ({ id }) => {
+    const finding = await api(`/api/findings/${id}`);
+    const comments = await api(`/api/findings/${id}/comments`);
+    const parts = [
+      `# ${finding.title}`,
+      `**Status:** ${finding.status} | **Prioritet:** ${finding.priority}`,
+      finding.assignee ? `**Tilldelad:** ${finding.assignee.name}` : "",
+      finding.tags?.length ? `**Taggar:** ${finding.tags.join(", ")}` : "",
+      "",
+      finding.description || "*Ingen beskrivning*",
+    ];
+    if (Array.isArray(comments) && comments.length > 0) {
+      parts.push("\n---\n## Kommentarer\n");
+      for (const c of comments) {
+        const author = c.author?.name || "Anonym";
+        const date = new Date(c.createdAt).toLocaleString("sv");
+        parts.push(`**${author}** (${date}):\n${c.content}\n`);
+      }
+    }
+    return {
+      content: [{ type: "text", text: parts.filter(Boolean).join("\n") }],
+    };
+  },
+);
+
+server.tool(
+  "comment_on_finding",
+  "Add a comment to a finding",
+  {
+    id: z.string().describe("Finding ID"),
+    content: z.string().describe("Comment content (markdown)"),
+    authorId: z.string().optional().describe("Profile ID of the author"),
+  },
+  async ({ id, content, authorId }) => {
+    const comment = await api(`/api/findings/${id}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ content, authorId }),
+    });
+    const author = comment.author?.name || "Anonym";
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Comment added by ${author} on finding ${id}`,
+        },
+      ],
+    };
+  },
+);
+
+server.tool(
+  "comment_on_plan",
+  "Add a comment to a plan",
+  {
+    space: z.string().describe("Space name"),
+    project: z.string().describe("Project slug"),
+    slug: z.string().describe("Plan slug"),
+    content: z.string().describe("Comment content (markdown)"),
+    authorId: z.string().optional().describe("Profile ID of the author"),
+  },
+  async ({ space, project, slug, content, authorId }) => {
+    // Get plan ID from slug
+    const plan = await api(
+      `/api/spaces/${space}/projects/${project}/plans/${slug}`,
+    );
+    const comment = await api(`/api/plans/${plan.id}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ content, authorId }),
+    });
+    const author = comment.author?.name || "Anonym";
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Comment added by ${author} on plan ${space}/${project}/${slug}`,
+        },
+      ],
     };
   },
 );

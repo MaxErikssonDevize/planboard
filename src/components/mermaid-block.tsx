@@ -1,33 +1,52 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useState } from "react";
+
+let mermaidInitialized = false;
 
 export function MermaidBlock({ code }: { code: string }) {
-  const ref = useRef<HTMLDivElement>(null);
   const [svg, setSvg] = useState("");
+  const uniqueId = useId().replace(/:/g, "m");
 
   useEffect(() => {
     let cancelled = false;
-    import("mermaid").then((mod) => {
+
+    import("mermaid").then(async (mod) => {
       const mermaid = mod.default;
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: "neutral",
-        fontFamily: "Inter, system-ui, sans-serif",
-      });
-      const id = `mermaid-${Math.random().toString(36).slice(2, 9)}`;
-      mermaid.render(id, code).then(({ svg: rendered }) => {
+
+      if (!mermaidInitialized) {
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "neutral",
+          fontFamily: "Inter, system-ui, sans-serif",
+          suppressErrorRendering: true,
+        });
+        mermaidInitialized = true;
+      }
+
+      // Remove any stale element from a previous render
+      const stale = document.getElementById(uniqueId);
+      if (stale) stale.remove();
+
+      try {
+        const { svg: rendered } = await mermaid.render(uniqueId, code);
         if (!cancelled) setSvg(rendered);
-      }).catch(() => {
+      } catch {
         if (!cancelled) setSvg("");
-      });
+      }
     });
-    return () => { cancelled = true; };
-  }, [code]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [code, uniqueId]);
 
   if (!svg) {
     return (
-      <pre className="rounded-xl border p-4 text-sm" style={{ borderColor: "var(--border)" }}>
+      <pre
+        className="rounded-xl border p-4 text-sm"
+        style={{ borderColor: "var(--border)" }}
+      >
         <code>{code}</code>
       </pre>
     );
@@ -35,7 +54,6 @@ export function MermaidBlock({ code }: { code: string }) {
 
   return (
     <div
-      ref={ref}
       className="my-4 overflow-x-auto"
       dangerouslySetInnerHTML={{ __html: svg }}
     />

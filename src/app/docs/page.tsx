@@ -132,13 +132,16 @@ MCP är ett öppet protokoll som låter AI-assistenter ansluta till externa verk
 | \`list_spaces\` | Lista alla utrymmen | — |
 | \`list_projects\` | Lista projekt i ett utrymme | \`space\` |
 | \`list_plans\` | Lista planer i ett projekt | \`space\`, \`project\` |
-| \`read_plan\` | Läs en plans innehåll | \`space\`, \`project\`, \`slug\` |
+| \`read_plan\` | Läs plan med kommentarer | \`space\`, \`project\`, \`slug\` |
 | \`write_plan\` | Skapa eller uppdatera en plan | \`space\`, \`project\`, \`slug?\`, \`content\`, \`title?\` |
 | \`delete_plan\` | Radera en plan | \`space\`, \`project\`, \`slug\` |
+| \`comment_on_plan\` | Kommentera på en plan | \`space\`, \`project\`, \`slug\`, \`content\`, \`authorId?\` |
 | \`list_findings\` | Lista findings i ett projekt | \`space\`, \`project\`, \`status?\` |
+| \`read_finding\` | Läs finding med kommentarer | \`id\` |
 | \`create_finding\` | Skapa en finding | \`space\`, \`project\`, \`title\`, \`description?\`, \`priority?\`, \`tags?\` |
 | \`update_finding\` | Uppdatera en finding | \`space\`, \`project\`, \`id\`, \`status?\`, \`priority?\`, ... |
 | \`delete_finding\` | Radera en finding | \`space\`, \`project\`, \`id\` |
+| \`comment_on_finding\` | Kommentera på en finding | \`id\`, \`content\`, \`authorId?\` |
 
 ## Arkitektur
 
