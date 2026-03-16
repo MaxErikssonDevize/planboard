@@ -1,8 +1,9 @@
 import { eq, and, sql, desc } from "drizzle-orm";
 import { db } from "./db";
-import { spaces, projects, plans, findings, profiles, findingComments } from "./db/schema";
+import { spaces, projects, plans, findings, profiles, findingComments, planComments } from "./db/schema";
 import { slugify } from "./slugify";
 import type {
+  PlanComment,
   FindingComment,
   Space,
   Project,
@@ -314,6 +315,60 @@ export async function deletePlan(
     .returning();
 
   if (result.length === 0) throw new Error("Plan ej hittad");
+}
+
+// --- Plan Comments ---
+
+export async function listPlanComments(planId: string): Promise<PlanComment[]> {
+  const rows = await db
+    .select({
+      comment: planComments,
+      author: profiles,
+    })
+    .from(planComments)
+    .leftJoin(profiles, eq(planComments.authorId, profiles.id))
+    .where(eq(planComments.planId, planId))
+    .orderBy(planComments.createdAt);
+
+  return rows.map((r) => ({
+    id: r.comment.id,
+    planId: r.comment.planId,
+    author: r.author ? toProfile(r.author) : null,
+    content: r.comment.content,
+    createdAt: r.comment.createdAt.toISOString(),
+  }));
+}
+
+export async function addPlanComment(
+  planId: string,
+  content: string,
+  authorId?: string,
+): Promise<PlanComment> {
+  const [row] = await db
+    .insert(planComments)
+    .values({
+      planId,
+      content,
+      authorId: authorId || null,
+    })
+    .returning();
+
+  const author = await getProfileById(row.authorId);
+  return {
+    id: row.id,
+    planId: row.planId,
+    author,
+    content: row.content,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
+export async function deletePlanComment(commentId: string): Promise<void> {
+  const result = await db
+    .delete(planComments)
+    .where(eq(planComments.id, commentId))
+    .returning();
+  if (result.length === 0) throw new Error("Kommentar ej hittad");
 }
 
 // --- Profiles ---

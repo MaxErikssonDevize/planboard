@@ -61,6 +61,24 @@ export const plans = pgTable(
   (t) => [uniqueIndex("plans_project_slug_idx").on(t.projectId, t.slug)],
 );
 
+export const planComments = pgTable(
+  "plan_comments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    planId: uuid("plan_id")
+      .notNull()
+      .references(() => plans.id, { onDelete: "cascade" }),
+    authorId: uuid("author_id").references(() => profiles.id, {
+      onDelete: "set null",
+    }),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("plan_comments_plan_idx").on(t.planId)],
+);
+
 export const profiles = pgTable(
   "profiles",
   {

@@ -30,6 +30,14 @@ export interface Plan extends PlanMeta {
   content: string;
 }
 
+export interface PlanComment {
+  id: string;
+  planId: string;
+  author: Profile | null;
+  content: string;
+  createdAt: string;
+}
+
 export interface Profile {
   id: string;
   name: string;
